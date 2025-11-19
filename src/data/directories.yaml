@@ -1,0 +1,6 @@
+movies:
+  name: "Movies"
+  icon: "/src/assets/directory.svg"
+photos:
+  name: "Photos"
+  icon: "/src/assets/directory.svg"

@@ -1,0 +1,10 @@
+---
+import { Image } from 'astro:assets';
+const {id, name, icon } = Astro.props;
+---
+<div>
+	<a href={id}>
+			<Image src={icon} alt={name} width={60} height={60}/>
+			<span class="inline">{name}</span>
+	</a>
+</div>

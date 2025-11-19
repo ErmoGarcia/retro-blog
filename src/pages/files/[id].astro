@@ -1,0 +1,16 @@
+---
+import Layout from "../../layouts/Layout.astro"
+import { getCollection, getEntry, render } from "astro:content";
+
+export async function getStaticPaths() {
+	const allFiles = await getCollection('files');
+	return allFiles.map(file => ({ params: { id: file.id }}));
+}
+
+const { id } = Astro.params;
+const file = await getEntry('files', id);
+const { Content } = await render(file);
+---
+<Layout>
+	<Content />
+</Layout>

@@ -1,0 +1,34 @@
+---
+import background from '../assets/background.webp';
+import { getCollection } from 'astro:content';
+import DesktopIcon from './DesktopIcon.astro';
+
+const allDirectories = await getCollection('directories');
+---
+
+<div id="container">
+	<img id="background" src={background.src} alt="" fetchpriority="high" />
+	<main class="px-10 py-20">
+		<section class="flex flex-col flex-wrap items-start gap-10">
+			{allDirectories.map(directory => (
+				<DesktopIcon id={"/directories/" + directory.id} name={directory.data.name} icon={directory.data.icon} />
+			))}
+		</section>
+	</main>
+</div>
+
+<style>
+	#background {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: -1;
+	}
+
+	#container {
+		font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;
+		height: 100%;
+	}
+</style>
