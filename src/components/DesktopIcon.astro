@@ -1,10 +1,38 @@
 ---
 import { Image } from 'astro:assets';
-const {id, name, icon } = Astro.props;
+const {id, name, icon, type } = Astro.props;
+
+let href;
+switch (type) {
+	case "directory":
+		href = "/directories/" + id;
+		break;
+	case "file":
+		href = "/files/" + id;
+		break;
+	default:
+		href = "/";
+		break;
+}
 ---
-<div>
-	<a href={id}>
-			<Image src={icon} alt={name} width={60} height={60}/>
-			<span class="inline">{name}</span>
-	</a>
-</div>
+<a class={`desktop-icon-${type} cursor-default px-5 py-3 focus:bg-blue-500`} href={href}>
+	<Image src={icon} alt={name} width={60} height={60}/>
+	<span class="cursor-default">{name}</span>
+</a>
+
+<script>
+const directoryDesktopIcons = document.querySelectorAll(".desktop-icon-directory");
+const fileDesktopIcons = document.querySelectorAll(".desktop-icon-file");
+
+directoryDesktopIcons.forEach(icon => icon.addEventListener("click", e => e.preventDefault()));
+fileDesktopIcons.forEach(icon => icon.addEventListener("click", e => e.preventDefault()));
+
+directoryDesktopIcons.forEach(icon => icon.addEventListener("dblclick", e => {
+	// TODO: open window
+	window.location.href = icon.href;
+}));
+fileDesktopIcons.forEach(icon => icon.addEventListener("dblclick", e => {
+	// TODO: open window
+	window.location.href = icon.href;
+}));
+</script>
