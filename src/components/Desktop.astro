@@ -2,6 +2,7 @@
 import background from '../assets/background.webp';
 import { getCollection } from 'astro:content';
 import DesktopIcon from './DesktopIcon.astro';
+import Window from './Window.astro';
 
 const allDirectories = await getCollection('directories');
 ---
@@ -15,6 +16,7 @@ const allDirectories = await getCollection('directories');
 			))}
 		</section>
 	</main>
+	<Window />
 </div>
 
 <style>

@@ -15,12 +15,14 @@ switch (type) {
 		break;
 }
 ---
-<a class={`desktop-icon-${type} cursor-default px-5 py-3 focus:bg-blue-500`} href={href}>
+<a class={`desktop-icon-${type} cursor-default px-5 py-3 focus:bg-blue-500`} href={href} data-dest-name={name}>
 	<Image src={icon} alt={name} width={60} height={60}/>
 	<span class="cursor-default">{name}</span>
 </a>
 
 <script>
+import { wm } from "../scripts/windows.ts";
+
 const directoryDesktopIcons = document.querySelectorAll(".desktop-icon-directory");
 const fileDesktopIcons = document.querySelectorAll(".desktop-icon-file");
 
@@ -28,11 +30,9 @@ directoryDesktopIcons.forEach(icon => icon.addEventListener("click", e => e.prev
 fileDesktopIcons.forEach(icon => icon.addEventListener("click", e => e.preventDefault()));
 
 directoryDesktopIcons.forEach(icon => icon.addEventListener("dblclick", e => {
-	// TODO: open window
-	window.location.href = icon.href;
+	wm.createWindow(icon.href, icon.dataset.destName);
 }));
 fileDesktopIcons.forEach(icon => icon.addEventListener("dblclick", e => {
-	// TODO: open window
-	window.location.href = icon.href;
+	wm.createWindow(icon.href, icon.dataset.destName);
 }));
 </script>
