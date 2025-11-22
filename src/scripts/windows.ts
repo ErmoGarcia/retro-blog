@@ -1,34 +1,58 @@
-class WindowManager {
-	windowStack: Window[] = [];
-	defaultWindowSize = {
-		width: 900,
-		height: 600,
-	};
-
-	createWindow(href: string, title: string): Window {
-		const w = new Window(href, title);
-		this.windowStack.push(w);
-		w.windowNode.id = `window-${this.windowStack.length}`
-		return w;
-	}
+const windowDefaults = {
+	width: 900,
+	height: 600,
 }
 
-class Window {
-	windowNode: HTMLElement;
+const desktop = {
+	height: window.parent.document.documentElement.clientHeight,
+	width: window.parent.document.documentElement.clientWidth,
+}
+
+export class Window {
+	html: HTMLElement;
 
 	constructor(href: string, title: string) {
-		const w = document.querySelector("#original-window");
-		if (w === null) throw "Window not found";
-		this.windowNode = w.cloneNode(true) as HTMLElement;
+		const w = document.createElement('div');
+		w.className = "window";
+		w.classList = "absolute p2 bg-wild-sand-100";
+		w.style.top = `${desktop.height / 2 - windowDefaults.height / 2}px`;
+		w.style.left = `${desktop.width / 2 - windowDefaults.width / 2}px`;
 
-		const iframe = this.windowNode.querySelector("iframe");
-		if (iframe === null) throw "Window has no iframe";
-		iframe.src = href;
-		iframe.title = title;
+		const wb = document.createElement('div');
+		wb.classList = "border-4 border-denim-600";
 
-		this.windowNode.style.visibility = "visible";
-		w.after(this.windowNode);
+		const statusBar = document.createElement('div');
+		statusBar.className = "window-status-bar";
+		statusBar.classList = "h-4 bg-denim-600";
+
+		const content = document.createElement('div');
+		content.classList = "p-2";
+		content.style.width = `${windowDefaults.width}px`;
+		content.style.height = `${windowDefaults.height}px`;
+		const frame = document.createElement('iframe');
+		frame.classList = "w-full h-full";
+		frame.src = href;
+		frame.title = title;
+		content.append(frame);
+
+		w.append(wb);
+		wb.append(statusBar);
+		wb.append(content);
+
+		this.html = w;
+		window.parent.document.dispatchEvent(new WindowEvent(this));
+	}
+
+	open() {
+		window.parent.document.body.append(this.html);
 	}
 }
 
-export const wm = new WindowManager();
+export class WindowEvent extends Event {
+	window: Window;
+
+	constructor(window: Window) {
+		super("windowCreated");
+		this.window = window;
+	}
+}

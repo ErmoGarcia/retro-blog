@@ -2,7 +2,6 @@
 import background from '../assets/background.webp';
 import { getCollection } from 'astro:content';
 import DesktopIcon from './DesktopIcon.astro';
-import Window from './Window.astro';
 
 const allDirectories = await getCollection('directories');
 ---
@@ -16,7 +15,6 @@ const allDirectories = await getCollection('directories');
 			))}
 		</section>
 	</main>
-	<Window />
 </div>
 
 <style>
@@ -34,3 +32,19 @@ const allDirectories = await getCollection('directories');
 		height: 100%;
 	}
 </style>
+
+<script>
+import { wm } from "../scripts/window-manager.ts"
+import { Window, WindowEvent } from "../scripts/windows"
+
+document.addEventListener("windowCreated", (event: WindowEvent) => {
+	document.body.append(event.window)
+})
+
+if (import.meta.env.DEV) {
+	document.addEventListener("DOMContentLoaded", () => {
+		const w = new Window("/directories/movies", "Movies");
+		w.open();
+	})
+}
+</script>

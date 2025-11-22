@@ -15,24 +15,28 @@ switch (type) {
 		break;
 }
 ---
-<a class={`desktop-icon-${type} cursor-default px-5 py-3 focus:bg-blue-500`} href={href} data-dest-name={name}>
-	<Image src={icon} alt={name} width={60} height={60}/>
-	<span class="cursor-default">{name}</span>
+<a class={`desktop-icon-${type} cursor-default px-5 py-3 group`} href={href} data-dest-name={name}>
+	<div class="group-focus:bg-denim-300">
+		<Image src={icon} alt={name} width={60} height={60}/>
+	</div>
+	<span class="cursor-default group-focus:bg-denim-300">{name}</span>
 </a>
 
 <script>
-import { wm } from "../scripts/windows.ts";
+import { Window } from "../scripts/windows.ts";
 
-const directoryDesktopIcons = document.querySelectorAll(".desktop-icon-directory");
-const fileDesktopIcons = document.querySelectorAll(".desktop-icon-file");
+const directoryDesktopIcons = document.querySelectorAll(".desktop-icon-directory") as NodeListOf<HTMLLinkElement>;
+const fileDesktopIcons = document.querySelectorAll(".desktop-icon-file") as NodeListOf<HTMLLinkElement>;
 
 directoryDesktopIcons.forEach(icon => icon.addEventListener("click", e => e.preventDefault()));
 fileDesktopIcons.forEach(icon => icon.addEventListener("click", e => e.preventDefault()));
 
-directoryDesktopIcons.forEach(icon => icon.addEventListener("dblclick", e => {
-	wm.createWindow(icon.href, icon.dataset.destName);
+directoryDesktopIcons.forEach(icon => icon.addEventListener("dblclick", () => {
+	const w = new Window(icon.href, icon.dataset.destName || "");
+	w.open();
 }));
-fileDesktopIcons.forEach(icon => icon.addEventListener("dblclick", e => {
-	wm.createWindow(icon.href, icon.dataset.destName);
+fileDesktopIcons.forEach(icon => icon.addEventListener("dblclick", () => {
+	const w = new Window(icon.href, icon.dataset.destName || "");
+	w.open();
 }));
 </script>
