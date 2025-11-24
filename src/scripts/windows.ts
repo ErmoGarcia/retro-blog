@@ -1,9 +1,9 @@
-const windowDefaults = {
+export const windowDefaults = {
 	width: 900,
 	height: 600,
 }
 
-const desktop = {
+export const desktop = {
 	height: window.parent.document.documentElement.clientHeight,
 	width: window.parent.document.documentElement.clientWidth,
 }
@@ -23,7 +23,13 @@ export class Window {
 
 		const statusBar = document.createElement('div');
 		statusBar.className = "window-status-bar";
-		statusBar.classList = "h-4 bg-denim-600";
+		statusBar.classList = "p-1 bg-denim-600 flex justify-end";
+
+		const closeIcon = document.createElement('button');
+		closeIcon.innerText = "Close";
+		closeIcon.classList = "bg-red-500 p-1 cursor-pointer";
+		closeIcon.onclick = () => this.close();
+		statusBar.append(closeIcon)
 
 		const content = document.createElement('div');
 		content.classList = "p-2";
@@ -40,19 +46,53 @@ export class Window {
 		wb.append(content);
 
 		this.html = w;
-		window.parent.document.dispatchEvent(new WindowEvent(this));
+	}
+
+	attachTo(target: HTMLElement) {
+		target.append(this.html);
+	}
+
+	dettach() {
+		this.html.remove()
 	}
 
 	open() {
-		window.parent.document.body.append(this.html);
+		window.parent.document.dispatchEvent(new CreateWindowEvent(this));
 	}
+
+	close() {
+		window.parent.document.dispatchEvent(new CloseWindowEvent(this));
+	}
+}
+
+export enum WindowAction {
+	create = "windowCreated",
+	close = "windowClosed",
 }
 
 export class WindowEvent extends Event {
 	window: Window;
 
+	constructor(window: Window, action: WindowAction) {
+		super(action);
+		this.window = window;
+	}
+}
+
+export class CreateWindowEvent extends Event {
+	window: Window;
+
 	constructor(window: Window) {
-		super("windowCreated");
+		super(WindowAction.create);
+		this.window = window;
+	}
+}
+
+export class CloseWindowEvent extends Event {
+	window: Window;
+
+	constructor(window: Window) {
+		super(WindowAction.close);
 		this.window = window;
 	}
 }
