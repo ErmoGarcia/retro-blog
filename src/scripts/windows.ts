@@ -1,5 +1,3 @@
-import { string } from "astro/zod";
-
 export const windowDefaults = {
 	width: 900,
 	height: 600,
@@ -12,33 +10,40 @@ export const desktop = {
 
 export class Window {
 	html: HTMLElement;
+	statusBar: HTMLElement;
+	movingTarget: HTMLElement;
+	closeIcon: HTMLElement;
 	maximizeIcon: HTMLElement;
+
 	maximized = false;
 	minimized = false;
 
 	constructor(href: string, title: string) {
 		const w = document.createElement('div');
 		w.classList = "window absolute p2 bg-wild-sand-100";
-		w.style.top = `${desktop.height / 2 - windowDefaults.height / 2}px`;
-		w.style.left = `${desktop.width / 2 - windowDefaults.width / 2}px`;
 
 		const wb = document.createElement('div');
 		wb.classList = "w-full h-full flex flex-col border-4 border-denim-600";
 
-		const statusBar = document.createElement('div');
-		statusBar.classList = "window-status-bar p-1 bg-denim-600 flex justify-end";
+		this.statusBar = document.createElement('div');
+		this.statusBar.classList = "window-status-bar p-1 bg-denim-600 flex justify-end";
+
+		this.movingTarget = document.createElement('span');
+		this.movingTarget.classList = "w-full";
+		this.movingTarget.onpointerdown = (event) => handleWindowDragging(this, event as PointerEvent);
+		this.statusBar.append(this.movingTarget);
 
 		this.maximizeIcon = document.createElement('button');
 		this.maximizeIcon.innerText = "Maximize";
 		this.maximizeIcon.classList = "bg-red-500 p-1 cursor-pointer";
 		this.maximizeIcon.onclick = () => this.toggleMaximized();
-		statusBar.append(this.maximizeIcon);
+		this.statusBar.append(this.maximizeIcon);
 
-		const closeIcon = document.createElement('button');
-		closeIcon.innerText = "Close";
-		closeIcon.classList = "bg-red-500 p-1 cursor-pointer";
-		closeIcon.onclick = () => this.close();
-		statusBar.append(closeIcon);
+		this.closeIcon = document.createElement('button');
+		this.closeIcon.innerText = "Close";
+		this.closeIcon.classList = "bg-red-500 p-1 cursor-pointer";
+		this.closeIcon.onclick = () => this.close();
+		this.statusBar.append(this.closeIcon);
 
 		const content = document.createElement('div');
 		content.classList = "window-content w-full h-full p-2";
@@ -49,12 +54,14 @@ export class Window {
 		content.append(frame);
 
 		w.append(wb);
-		wb.append(statusBar);
+		wb.append(this.statusBar);
 		wb.append(content);
 
 		this.html = w;
 		this.width = windowDefaults.width;
 		this.height = windowDefaults.height;
+		this.html.style.top = desktop.height / 2 - windowDefaults.height / 2 + "px";
+		this.html.style.left = desktop.width / 2 - windowDefaults.width / 2 + "px";
 	}
 
 	get width() {
@@ -85,6 +92,20 @@ export class Window {
 		}
 	}
 
+	get position() {
+		return {
+			x: +this.html.style.left.replace("%", "").replace("px", ""),
+			y: +this.html.style.top.replace("%", "").replace("px", ""),
+		}
+	}
+
+	move(x: number, y: number) {
+		if (this.maximized) return false;
+		this.html.style.left = (this.position.x + x) + "px";
+		this.html.style.top = (this.position.y + y) + "px";
+		return true;
+	}
+
 	attachTo(target: HTMLElement) {
 		target.append(this.html);
 	}
@@ -102,6 +123,7 @@ export class Window {
 	}
 
 	toggleMaximized() {
+		console.log(this.maximized)
 		this.maximized = !this.maximized;
 		if (this.maximized) {
 			this.html.style.top = "0";
@@ -149,4 +171,29 @@ export class CloseWindowEvent extends Event {
 		super(WindowAction.close);
 		this.window = window;
 	}
+}
+
+function handleWindowDragging(window: Window, event: PointerEvent) {
+	window.html.setPointerCapture(event.pointerId);
+	let initialX = event.clientX;
+	let initialY = event.clientY;
+
+	const releaseWindow = () => {
+		window.html.onpointermove = null;
+		window.html.onpointerup = null;
+	};
+
+	window.html.onpointermove = (event) => {
+		// if (event.relatedTarget === null) {
+		// 	releaseWindow();
+		// 	return
+		// }
+		let xMovement = event.clientX - initialX;
+		let yMovement = event.clientY - initialY;
+		window.move(xMovement, yMovement);
+		initialX = event.clientX;
+		initialY = event.clientY;
+	};
+
+	window.html.onpointerup = releaseWindow;
 }
