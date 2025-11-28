@@ -67,57 +67,28 @@ export class Window {
 	}
 
 	_addResizeBorders(wb: HTMLElement) {
-		type BorderElement = {
-			x?: ResizeFunction,
-			y?: ResizeFunction,
-			element?: HTMLElement
-		};
-
-		const matrix: BorderElement[][] = [
-			[{ x: resizeLeft, y: resizeTop }, { y: resizeTop }, { x: resizeRight, y: resizeTop }],
-			[{ x: resizeLeft }, { y: resizeRight }],
-			[{ x: resizeLeft, y: resizeBottom }, { y: resizeBottom }, { x: resizeRight, y: resizeBottom }]
-		];
-
-		matrix.flat().forEach(elem => {
-			const border = document.createElement('div');
-			border.classList = "absolute db-denim-600";
-			wb.append(border);
-			elem["element"] = border;
+		const borders = Array.from(Array(8), () => document.createElement('div'));
+		borders[0].classList.add("hover:cursor-n-resize", "top-0", "left-0", "right-0", "h-2");
+		borders[1].classList.add("hover:cursor-w-resize", "top-0", "left-0", "bottom-0", "w-2");
+		borders[2].classList.add("hover:cursor-e-resize", "top-0", "right-0", "bottom-0", "w-2");
+		borders[3].classList.add("hover:cursor-s-resize", "left-0", "right-0", "bottom-0", "h-2");
+		borders[4].classList.add("hover:cursor-nw-resize", "top-0", "left-0", "w-2", "h-2");
+		borders[5].classList.add("hover:cursor-ne-resize", "top-0", "right-0", "w-2", "h-2");
+		borders[6].classList.add("hover:cursor-sw-resize", "bottom-0", "left-0", "w-2", "h-2");
+		borders[7].classList.add("hover:cursor-se-resize", "bottom-0", "right-0", "w-2", "h-2");
+		borders[0].onpointerdown = (event: Event) => handleResize(this, event as PointerEvent, undefined, resizeTop);
+		borders[1].onpointerdown = (event: Event) => handleResize(this, event as PointerEvent, resizeRight, undefined);
+		borders[2].onpointerdown = (event: Event) => handleResize(this, event as PointerEvent, resizeLeft, undefined);
+		borders[3].onpointerdown = (event: Event) => handleResize(this, event as PointerEvent, undefined, resizeBottom);
+		borders[4].onpointerdown = (event: Event) => handleResize(this, event as PointerEvent, resizeLeft, resizeTop);
+		borders[5].onpointerdown = (event: Event) => handleResize(this, event as PointerEvent, resizeRight, resizeTop);
+		borders[6].onpointerdown = (event: Event) => handleResize(this, event as PointerEvent, resizeLeft, resizeBottom);
+		borders[7].onpointerdown = (event: Event) => handleResize(this, event as PointerEvent, resizeRight, resizeBottom);
+		borders.forEach(border => {
+			border.ondragstart = () => false;
+			border.classList.add("absolute", "bg-denim-600");
 		})
-		const wbTop = document.createElement('div');
-		const wbLeft = document.createElement('div');
-		const wbRight = document.createElement('div');
-		const wbBottom = document.createElement('div');
-		const wbTopLeft = document.createElement('div');
-		const wbTopRight = document.createElement('div');
-		const wbBottomLeft = document.createElement('div');
-		const wbBottomRight = document.createElement('div');
-		wbTop.classList = "hover:cursor-n-resize absolute top-0 left-0 right-0 h-2 bg-denim-600"
-		wbLeft.classList = "hover:cursor-w-resize absolute top-0 left-0 bottom-0 w-2 bg-denim-600"
-		wbRight.classList = "hover:cursor-e-resize absolute top-0 right-0 bottom-0 w-2 bg-denim-600"
-		wbBottom.classList = "hover:cursor-s-resize absolute left-0 right-0 bottom-0 h-2 bg-denim-600"
-		wbTopLeft.classList = "hover:cursor-nw-resize absolute top-0 left-0 w-2 h-2 bg-denim-600"
-		wbTopRight.classList = "hover:cursor-ne-resize absolute top-0 right-0 w-2 h-2 bg-denim-600"
-		wbBottomLeft.classList = "hover:cursor-sw-resize absolute bottom-0 left-0 w-2 h-2 bg-denim-600"
-		wbBottomRight.classList = "hover:cursor-se-resize absolute bottom-0 right-0 w-2 h-2 bg-denim-600"
-		wbTop.onpointerdown = (event) => handleResize(this, event as PointerEvent, undefined, resizeTop);
-		wbTop.ondragstart = () => false;
-		wbLeft.onpointerdown = (event) => handleResize(this, event as PointerEvent, resizeLeft, undefined);
-		wbLeft.ondragstart = () => false;
-		wbRight.onpointerdown = (event) => handleResize(this, event as PointerEvent, resizeRight, undefined);
-		wbRight.ondragstart = () => false;
-		wbBottom.onpointerdown = (event) => handleResize(this, event as PointerEvent, undefined, resizeBottom);
-		wbBottom.ondragstart = () => false;
-		wbTopLeft.onpointerdown = (event) => handleResize(this, event as PointerEvent, resizeLeft, resizeTop);
-		wbTopLeft.ondragstart = () => false;
-		wbTopRight.onpointerdown = (event) => handleResize(this, event as PointerEvent, resizeRight, resizeTop);
-		wbTopRight.ondragstart = () => false;
-		wbBottomRight.onpointerdown = (event) => handleResize(this, event as PointerEvent, resizeRight, resizeBottom);
-		wbBottomRight.ondragstart = () => false;
-		wbBottomLeft.onpointerdown = (event) => handleResize(this, event as PointerEvent, resizeLeft, resizeBottom);
-		wbBottomLeft.ondragstart = () => false;
-		wb.append(wbTop, wbLeft, wbRight, wbBottom, wbTopLeft, wbTopRight, wbBottomLeft, wbBottomRight);
+		wb.append(...borders);
 	}
 
 	get width() {
