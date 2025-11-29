@@ -12,7 +12,7 @@ then
 
     # Name first Pane and start zsh
     tmux rename-window -t 0 'Main'
-    tmux send-keys -t 'Main' 'nvim' C-m
+    tmux send-keys -t 'Main' 'nvim -O src/scripts/windows.ts src/components/Desktop.astro' C-m
 
     # Setup an additional shell
     tmux new-window -t $SESSION:1 -n 'Shell'
