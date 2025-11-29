@@ -37,6 +37,7 @@ export class Window {
 
 		const w = document.createElement('div');
 		w.classList = "window absolute bg-wild-sand-100 select-none ring-2 ring-denim-800/80";
+		w.onpointerdown = () => this.focus();
 
 		const wb = document.createElement('div');
 		wb.classList = "relative w-full h-full flex flex-col p-2";
@@ -76,6 +77,10 @@ export class Window {
 		frame.classList = "w-full h-full";
 		frame.src = this.href;
 		frame.title = this.title;
+		frame.onload = () => {
+			if (!frame.contentDocument) return;
+			frame.contentDocument.onpointerdown = () => this.focus();
+		};
 		content.append(frame);
 
 		w.append(wb);
@@ -156,6 +161,12 @@ export class Window {
 		}
 	}
 
+	set z(zIndex: number) {
+		console.log(zIndex);
+		// this.html.classList.add("z-" + zIndex);
+		this.html.style.zIndex = String(1000 + zIndex);
+	}
+
 	move(x: number, y: number) {
 		if (this.maximized) return false;
 		this.html.style.left = (this.position.x + x) + "px";
@@ -169,6 +180,7 @@ export class Window {
 
 	dettach() {
 		this.html.remove()
+		this.homebarButton.remove();
 	}
 
 	open() {
@@ -205,12 +217,16 @@ export class Window {
 			this.homebarButton.classList.add(...notMinizmizedStyles);
 		}
 	}
+
+	focus() {
+		window.parent.document.dispatchEvent(new FocusWindowEvent(this));
+	}
 }
 
 export enum WindowAction {
 	create = "windowCreated",
 	close = "windowClosed",
-	minimize = "windowMinimized",
+	focus = "windowFocused",
 }
 
 export class WindowEvent extends Event {
@@ -236,6 +252,15 @@ export class CloseWindowEvent extends Event {
 
 	constructor(window: Window) {
 		super(WindowAction.close);
+		this.window = window;
+	}
+}
+
+export class FocusWindowEvent extends Event {
+	window: Window;
+
+	constructor(window: Window) {
+		super(WindowAction.focus);
 		this.window = window;
 	}
 }

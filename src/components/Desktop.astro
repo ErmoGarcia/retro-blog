@@ -41,6 +41,7 @@ import { Window, WindowAction, WindowEvent } from "../scripts/windows"
 
 document.addEventListener(WindowAction.create, ((event: WindowEvent) => wm.addWindow(event.window)) as EventListener);
 document.addEventListener(WindowAction.close, ((event: WindowEvent) => wm.removeWindow(event.window)) as EventListener);
+document.addEventListener(WindowAction.focus, ((event: WindowEvent) => wm.focusWindow(event.window)) as EventListener);
 
 if (import.meta.env.DEV) {
 	document.addEventListener("DOMContentLoaded", () => {

@@ -19,7 +19,7 @@ class WindowManager {
 		this.windowStack = new Proxy(windowStack, {
 			set: (target, prop, val, receiver) => {
 				if (val instanceof Window) {
-					this.homebar.append(val.homebarButton);
+					val.z = Number(prop);
 				}
 				Reflect.set(target, prop, val, receiver);
 				return true;
@@ -35,12 +35,22 @@ class WindowManager {
 
 		this.windowStack.push(w);
 		w.attachTo(this.desktop);
+
+		this.homebar.append(w.homebarButton);
 	}
+
 	removeWindow(w: Window) {
 		const index = this.windowStack.indexOf(w);
 		if (index === -1) return
 		this.windowStack.splice(index, 1);
 		w.dettach();
+	}
+
+	focusWindow(w: Window) {
+		const index = this.windowStack.indexOf(w);
+		if (index === -1) return
+		this.windowStack.splice(index, 1);
+		this.windowStack.push(w);
 	}
 }
 
