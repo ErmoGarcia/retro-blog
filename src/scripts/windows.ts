@@ -14,11 +14,27 @@ export class Window {
 	movingTarget: HTMLElement;
 	closeIcon: HTMLElement;
 	maximizeIcon: HTMLElement;
+	minimizeIcon: HTMLElement;
+
+	homebarButton: HTMLElement;
 
 	maximized = false;
 	minimized = false;
 
+	title: string;
+	href: string;
+
+	isWindow = true; // so other frames can recognize it
+
+	static [Symbol.hasInstance](obj: any) {
+		if (obj.isWindow) return true;
+		return false;
+	}
+
 	constructor(href: string, title: string) {
+		this.title = title;
+		this.href = href;
+
 		const w = document.createElement('div');
 		w.classList = "window absolute bg-wild-sand-100 select-none ring-2 ring-denim-800/80";
 
@@ -35,9 +51,16 @@ export class Window {
 		this.movingTarget.onpointerdown = (event) => handleWindowDragging(this, event as PointerEvent);
 		this.statusBar.append(this.movingTarget);
 
+		const notMinizmizedStyles = ["inset-shadow-sm", "inset-shadow-wild-sand-800"];
+		this.minimizeIcon = document.createElement('button');
+		this.minimizeIcon.innerText = "Minimize";
+		this.minimizeIcon.classList = "bg-wild-sand-300 p-1 cursor-pointer";
+		this.minimizeIcon.onclick = () => this.toggleMinimized(notMinizmizedStyles);
+		this.statusBar.append(this.minimizeIcon);
+
 		this.maximizeIcon = document.createElement('button');
 		this.maximizeIcon.innerText = "Maximize";
-		this.maximizeIcon.classList = "bg-red-500 p-1 cursor-pointer";
+		this.maximizeIcon.classList = "bg-wild-sand-300 p-1 cursor-pointer";
 		this.maximizeIcon.onclick = () => this.toggleMaximized();
 		this.statusBar.append(this.maximizeIcon);
 
@@ -51,8 +74,8 @@ export class Window {
 		content.classList = "window-content w-full h-full";
 		const frame = document.createElement('iframe');
 		frame.classList = "w-full h-full";
-		frame.src = href;
-		frame.title = title;
+		frame.src = this.href;
+		frame.title = this.title;
 		content.append(frame);
 
 		w.append(wb);
@@ -64,6 +87,11 @@ export class Window {
 		this.height = windowDefaults.height;
 		this.html.style.top = desktop.height / 2 - windowDefaults.height / 2 + "px";
 		this.html.style.left = desktop.width / 2 - windowDefaults.width / 2 + "px";
+
+		this.homebarButton = document.createElement('button');
+		this.homebarButton.innerText = this.title;
+		this.homebarButton.classList.add("px-2", "py-1", "bg-wild-sand-300", ...notMinizmizedStyles);
+		this.homebarButton.onclick = () => this.toggleMinimized(notMinizmizedStyles);
 	}
 
 	_addResizeBorders(wb: HTMLElement) {
@@ -152,7 +180,6 @@ export class Window {
 	}
 
 	toggleMaximized() {
-		console.log(this.maximized)
 		this.maximized = !this.maximized;
 		if (this.maximized) {
 			this.html.style.top = "0";
@@ -168,11 +195,22 @@ export class Window {
 		this.height = windowDefaults.height;
 		this.maximizeIcon.innerText = "Maximize";
 	}
+
+	toggleMinimized(notMinizmizedStyles: string[]) {
+		this.minimized = !this.minimized;
+		this.html.hidden = this.minimized;
+		if (this.minimized) {
+			this.homebarButton.classList.remove(...notMinizmizedStyles);
+		} else {
+			this.homebarButton.classList.add(...notMinizmizedStyles);
+		}
+	}
 }
 
 export enum WindowAction {
 	create = "windowCreated",
 	close = "windowClosed",
+	minimize = "windowMinimized",
 }
 
 export class WindowEvent extends Event {

@@ -2,18 +2,20 @@
 import background from '../assets/background.webp';
 import { getCollection } from 'astro:content';
 import DesktopIcon from './DesktopIcon.astro';
+import HomeBar from './HomeBar.astro';
 
 const allDirectories = await getCollection('directories');
 ---
 
 <div id="container">
 	<img id="background" src={background.src} alt="" fetchpriority="high" />
-	<main class="px-10 py-20">
-		<section class="desktop flex flex-col flex-wrap items-start gap-10">
+	<main class="h-full flex flex-col justify-between">
+		<section class="desktop flex flex-col flex-wrap items-start gap-10 px-10 py-20">
 			{allDirectories.map(directory => (
 				<DesktopIcon id={directory.id} type="directory" name={directory.data.name} icon={directory.data.icon} />
 			))}
 		</section>
+		<HomeBar />
 	</main>
 </div>
 

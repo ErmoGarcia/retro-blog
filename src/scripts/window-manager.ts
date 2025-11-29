@@ -8,10 +8,23 @@ const windowOffset = {
 
 class WindowManager {
 	desktop: HTMLElement;
-	windowStack: Window[] = [];
+	homebar: HTMLElement;
+	windowStack: Window[];
 
 	constructor() {
 		this.desktop = document.querySelector(".desktop")!;
+		this.homebar = document.querySelector(".homebar")!;
+
+		const windowStack: Window[] = [];
+		this.windowStack = new Proxy(windowStack, {
+			set: (target, prop, val, receiver) => {
+				if (val instanceof Window) {
+					this.homebar.append(val.homebarButton);
+				}
+				Reflect.set(target, prop, val, receiver);
+				return true;
+			},
+		})
 	}
 
 	addWindow(w: Window) {
@@ -22,12 +35,12 @@ class WindowManager {
 
 		this.windowStack.push(w);
 		w.attachTo(this.desktop);
-		console.log(this.windowStack);
 	}
 	removeWindow(w: Window) {
-		this.windowStack = this.windowStack.filter(window => window !== w);
+		const index = this.windowStack.indexOf(w);
+		if (index === -1) return
+		this.windowStack.splice(index, 1);
 		w.dettach();
-		console.log(this.windowStack);
 	}
 }
 
