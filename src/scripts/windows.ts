@@ -8,6 +8,15 @@ export const desktop = {
 	width: window.parent.document.documentElement.clientWidth,
 }
 
+function getIconSvg(src: string, alt: string): HTMLElement {
+	const svg = document.createElement('img');
+	svg.src = "/src/assets/" + src;
+	svg.alt = alt;
+	svg.width = 25;
+	svg.height = 25;
+	return svg;
+}
+
 export class Window {
 	html: HTMLElement;
 	statusBar: HTMLElement;
@@ -54,20 +63,20 @@ export class Window {
 
 		const notMinizmizedStyles = ["inset-shadow-sm", "inset-shadow-wild-sand-800"];
 		this.minimizeIcon = document.createElement('button');
-		this.minimizeIcon.innerText = "Minimize";
-		this.minimizeIcon.classList = "bg-wild-sand-300 p-1 cursor-pointer";
+		this.minimizeIcon.append(getIconSvg("window minimize.svg", "Minimize"));
+		this.minimizeIcon.classList = "bg-wild-sand-300 p-0 cursor-pointer";
 		this.minimizeIcon.onclick = () => this.toggleMinimized(notMinizmizedStyles);
 		this.statusBar.append(this.minimizeIcon);
 
 		this.maximizeIcon = document.createElement('button');
-		this.maximizeIcon.innerText = "Maximize";
-		this.maximizeIcon.classList = "bg-wild-sand-300 p-1 cursor-pointer";
+		this.maximizeIcon.append(getIconSvg("window maximize.svg", "Maximize"));
+		this.maximizeIcon.classList = "bg-wild-sand-300 p-0 cursor-pointer";
 		this.maximizeIcon.onclick = () => this.toggleMaximized();
 		this.statusBar.append(this.maximizeIcon);
 
 		this.closeIcon = document.createElement('button');
-		this.closeIcon.innerText = "Close";
-		this.closeIcon.classList = "bg-red-500 p-1 cursor-pointer";
+		this.closeIcon.append(getIconSvg("window close.svg", "Close"));
+		this.closeIcon.classList = "bg-red-500 p-0 cursor-pointer";
 		this.closeIcon.onclick = () => this.close();
 		this.statusBar.append(this.closeIcon);
 
@@ -95,7 +104,8 @@ export class Window {
 
 		this.homebarButton = document.createElement('button');
 		this.homebarButton.innerText = this.title;
-		this.homebarButton.classList.add("px-2", "py-1", "bg-wild-sand-300", ...notMinizmizedStyles);
+		this.homebarButton.classList = "w-50 px-2 text-start text-truncate bg-wild-sand-300";
+		this.homebarButton.classList.add(...notMinizmizedStyles);
 		this.homebarButton.onclick = () => this.toggleMinimized(notMinizmizedStyles);
 	}
 
@@ -198,14 +208,14 @@ export class Window {
 			this.html.style.left = "0";
 			this.width = "100%";
 			this.height = "100%";
-			this.maximizeIcon.innerText = "Unmaximize";
+			this.maximizeIcon.replaceChildren(getIconSvg("window restore.svg", "Restore"));
 			return
 		}
 		this.html.style.top = `${desktop.height / 2 - windowDefaults.height / 2}px`;
 		this.html.style.left = `${desktop.width / 2 - windowDefaults.width / 2}px`;
 		this.width = windowDefaults.width;
 		this.height = windowDefaults.height;
-		this.maximizeIcon.innerText = "Maximize";
+		this.maximizeIcon.replaceChildren(getIconSvg("window maximize.svg", "Maximize"));
 	}
 
 	toggleMinimized(notMinizmizedStyles: string[]) {
